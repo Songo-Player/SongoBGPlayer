@@ -1,0 +1,9 @@
+/* Only the C API leaves libsongo_engine. FFmpeg, mbedTLS and the statically
+   linked C++ runtime stay inside, so they can't clash with anything else
+   loaded into the process (Godot, another FFmpeg). */
+{
+	global:
+		songo_*;
+	local:
+		*;
+};

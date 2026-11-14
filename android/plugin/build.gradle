@@ -1,0 +1,58 @@
+// The Android side of SongoPlayerHarness, as a Godot v2 plugin AAR: the
+// playback service, media session and audio focus that keep the engine
+// playing with the screen off or another app in front. The AAR also carries
+// libsongo_engine.android.arm64.so, so an app gets the engine just by adding
+// it to its Gradle export; Songodot's SongoPlayerHarness loads it from there.
+// Build the engine first (scons platform=android arch=arm64 in the repo root).
+//
+//   ANDROID_HOME=~/Android/Sdk JAVA_HOME=<JDK 17> ./gradlew assembleRelease
+//
+// Same Android Gradle Plugin, SDK levels and Java as Godot 4.3's build template.
+
+plugins {
+    id 'com.android.library' version '8.2.0'
+}
+
+android {
+    namespace 'org.songo.harness'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 21
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ["$buildDir/engine_jni"]
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+dependencies {
+    // Provided by the Godot app at runtime
+    compileOnly 'org.godotengine:godot:4.3.0.stable'
+}
+
+// The engine library from the repo's bin/, into the AAR's jni/arm64-v8a
+def engineLib = file("../../bin/libsongo_engine.android.arm64.so")
+def copyEngineLib = tasks.register('copyEngineLib', Copy) {
+    doFirst {
+        if (!engineLib.exists()) {
+            throw new GradleException("${engineLib} is missing, build it first: scons platform=android arch=arm64")
+        }
+    }
+    from engineLib
+    into "$buildDir/engine_jni/arm64-v8a"
+}
+tasks.named('preBuild') { dependsOn copyEngineLib }

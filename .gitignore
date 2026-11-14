@@ -1,0 +1,14 @@
+.sconsign.dblite
+bin/
+build/
+*.os
+*.o
+__pycache__/
+
+.godot/
+*.import
+tests/godot/audio/
+tests/godot/addons/
+.gradle/
+local.properties
+android/plugin/build/

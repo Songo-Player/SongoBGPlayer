@@ -1,0 +1,8 @@
+/* As songo_engine.map, plus the JNI the Android plugin's service calls */
+{
+	global:
+		songo_*;
+		Java_org_songo_harness_SongoNative_*;
+	local:
+		*;
+};

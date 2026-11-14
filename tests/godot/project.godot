@@ -1,0 +1,5 @@
+config_version=5
+
+[application]
+
+config/name="songo_player_harness tests"
