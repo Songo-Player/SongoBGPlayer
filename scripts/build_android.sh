@@ -9,7 +9,7 @@
 #
 # Needs the NDK r23c (ANDROID_NDK_ROOT, or ANDROID_HOME with
 # ndk/23.2.8568313), cmake, and for the AAR the Android SDK (ANDROID_HOME) and
-# a JDK 17 (JAVA_HOME, or ~/Android/jdk17 if that exists). mbedTLS and FFmpeg
+# a JDK 17 (JAVA_HOME). mbedTLS and FFmpeg
 # are built first if they aren't yet (--rebuild-deps always rebuilds them).
 # --no-aar stops after the engine library.
 
@@ -39,9 +39,6 @@ if [ "$BUILD_AAR" = 1 ]; then
     if [ -z "${ANDROID_HOME:-}" ]; then
         echo "!! ANDROID_HOME isn't set, it's needed for the AAR (or pass --no-aar)" >&2
         exit 1
-    fi
-    if [ -z "${JAVA_HOME:-}" ] && [ -d "$HOME/Android/jdk17" ]; then
-        export JAVA_HOME="$HOME/Android/jdk17"
     fi
     echo "==> Building the plugin AAR..."
     (cd android/plugin && ./gradlew assembleRelease)

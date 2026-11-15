@@ -10,7 +10,7 @@
 # cross compiles with $CROSS_PREFIX (aarch64-linux-gnu- by default).
 # android-arm64 needs the NDK, see find_android_ndk in toolchain.sh.
 # windows-x86_64 cross compiles with MinGW-w64 ($CROSS_PREFIX,
-# x86_64-w64-mingw32- by default); scripts/build_windows.sh has it in Docker.
+# x86_64-w64-mingw32- by default).
 
 set -e
 source "$(dirname "${BASH_SOURCE[0]}")/toolchain.sh"

@@ -18,8 +18,8 @@
 # Usually run through scripts/build_x86_64.sh, build_arm64.sh or
 # build_android.sh, which build mbedTLS and FFmpeg first (scripts/deps/).
 #
-# Cross compiling for arm64 Linux: scripts/build_arm64.sh does it in Docker,
-# or set CROSS_PREFIX (eg: aarch64-linux-gnu-) in the environment.
+# Cross compiling: set CROSS_PREFIX (eg: aarch64-linux-gnu-) in the
+# environment. SongoDevKit has the toolchains, in Docker.
 # Android needs ANDROID_NDK_ROOT, or ANDROID_HOME with NDK r23c
 # (23.2.8568313) installed under it.
 

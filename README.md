@@ -24,24 +24,23 @@ FFmpeg (and its mbedTLS) live only in `libsongo_engine.<platform>.<arch>.so` (`.
 The module keeps copies of `engine/include/songo_engine.h`, `engine/include/songo_shared.h` and `common/protocol.{h,cpp}` in `modules/songo_player_harness/bgplayer/`. Change them here and copy them over. Mismatches are caught at runtime rather than misbehaving: the module checks `SONGO_ENGINE_API_VERSION` when it loads the engine, `SHARED_VERSION` when it maps shared memory, and `PROTOCOL_VERSION` in the daemon's `hello` (an older daemon is asked to quit and a new one started).
 
 ### Building
+Most of the time, build through **SongoDevKit**, which has every toolchain (Docker images for arm64 Linux and Windows, the Android SDK/NDK) and builds whatever Songo needs, only when it changed. The scripts here are what it runs, and work on their own given the right toolchain.
+
 Clone with `git clone --recurse-submodules` (FFmpeg n8.1.2 and mbedTLS v3.6.7 are pinned submodules), then run the script for what you're building. Each builds mbedTLS and FFmpeg the first time, then the engine and daemon, into `bin/`:
 
-| Script | Builds | For |
+| Script | Builds | Toolchain it expects |
 |---|---|---|
-| `scripts/build_x86_64.sh` | `libsongo_engine.linux.x86_64.so`, `songo_bgplayer.linux.x86_64` | desktops, running Songo from the editor |
-| `scripts/build_arm64.sh` | `libsongo_engine.linux.arm64.so`, `songo_bgplayer.linux.arm64` | arm64 Linux handhelds (PortMaster) |
-| `scripts/build_android.sh` | `libsongo_engine.android.arm64.so`, and the plugin AAR (`android/plugin/build/outputs/aar/songo_harness-release.aar`) with it inside | Android (8.0+, for AAudio) |
-| `scripts/build_windows.sh` | `libsongo_engine.windows.x86_64.dll` | 64-bit Windows (WASAPI) |
+| `scripts/build_x86_64.sh` | `libsongo_engine.linux.x86_64.so`, `songo_bgplayer.linux.x86_64` | the host's gcc (or `use_llvm=yes`), cmake, ALSA headers (`libasound2-dev`) |
+| `scripts/build_arm64.sh` | `libsongo_engine.linux.arm64.so`, `songo_bgplayer.linux.arm64` | native on aarch64, otherwise `$CROSS_PREFIX` (default `aarch64-linux-gnu-`) with arm64 ALSA headers |
+| `scripts/build_windows.sh` | `libsongo_engine.windows.x86_64.dll` | MinGW-w64, posix threads (`$CROSS_PREFIX`, default `x86_64-w64-mingw32-`) |
+| `scripts/build_android.sh` | `libsongo_engine.android.arm64.so`, and the plugin AAR (`android/plugin/build/outputs/aar/songo_harness-release.aar`) with it inside | NDK r23c (`ANDROID_NDK_ROOT`, or `ANDROID_HOME` with `ndk/23.2.8568313`), and for the AAR `ANDROID_HOME` and a JDK 17 (`JAVA_HOME`) |
 
 - `--rebuild-deps` as the first argument rebuilds mbedTLS and FFmpeg too, eg: after updating a submodule or `scripts/deps/ffmpeg_audio_components.sh` (which trims FFmpeg to audio only). FFmpeg builds inside `third_party/ffmpeg`, so don't run two builds at once.
 - Anything after that goes to SCons, eg: `target=debug` (unoptimized, with symbols) or `use_llvm=yes` (clang, Linux).
-- **x86_64** needs the ALSA headers (`libasound2-dev`), cmake and a C/C++ toolchain. libasound is linked dynamically, libstdc++/libgcc statically.
-- **arm64**, on an x86_64 machine, cross compiles in Docker (`scripts/docker/Dockerfile`, image `songo-bgplayer-arm64`, or `$SONGO_ARM64_IMAGE`). It runs as your user with the repo mounted at `/src`, so `build/` and `bin/` stay yours. The image is Ubuntu 20.04 with its `aarch64-linux-gnu` GCC 9.4, which keeps the binaries needing only glibc 2.29: don't move it to a newer release without checking the oldest CFW you support. On an aarch64 machine (eg: an arm64 chroot) the script builds natively instead, and that machine's glibc sets the floor.
-- **Android** needs NDK r23c (`ANDROID_NDK_ROOT`, or `ANDROID_HOME` with `ndk/23.2.8568313`), and for the AAR the SDK (`ANDROID_HOME`) and a JDK 17 (`JAVA_HOME`, or `~/Android/jdk17`). The AAR uses the same Gradle 8.2, AGP 8.2.0 and SDK 34 as Godot 4.3's build template. `--no-aar` stops after the engine library. Before Android 8.0 there's no AAudio, so the engine doesn't start.
-- **Windows** cross compiles with MinGW-w64 (posix threads) in Docker (`scripts/docker/Dockerfile.windows`, image `songo-bgplayer-windows`, or `$SONGO_WINDOWS_IMAGE`). The DLL links libgcc, libstdc++ and libwinpthread statically and exports only the C API, so it needs nothing beyond Windows' own DLLs. There's no daemon on Windows: Songodot plays through the DLL in-process, and music stops with Songo.
+- The arm64 toolchain's glibc sets the oldest CFW the binaries run on. SongoDevKit builds them in Ubuntu 20.04, for glibc 2.29.
+- The Windows DLL links libgcc, libstdc++ and libwinpthread statically and exports only the C API, so it needs nothing beyond Windows' own DLLs. There's no daemon on Windows: Songodot plays through the DLL in-process, and music stops with Songo.
+- The AAR uses the same Gradle 8.2, AGP 8.2.0 and SDK 34 as Godot 4.3's build template. `--no-aar` stops after the engine library. Before Android 8.0 there's no AAudio, so the engine doesn't start.
 - `scripts/deps/build_mbedtls.sh <target>` and `scripts/deps/build_ffmpeg.sh <target>` (`x86_64`, `arm64`, `android-arm64` or `windows-x86_64`) build one dependency on its own.
-
-After building, copy the Linux and Windows engine builds and the daemons into Songo-5's `addons/songo_player_harness/bin`, and the AAR into its `addons/songo_player_harness/android`.
 
 ### Using it with Songodot
 `SongoPlayerHarness` is built into Songodot (the `songo_player_harness` module, on in `sbc_profile.py` and `android_profile.py`). Unless its `engine_library_path` and `daemon_path` are set, it looks for `libsongo_engine.<platform>.<arch>.so` and `songo_bgplayer.<platform>.<arch>`:
