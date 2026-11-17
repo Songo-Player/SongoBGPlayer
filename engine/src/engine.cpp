@@ -1,7 +1,7 @@
 #include "songo_engine.h"
 #include "songo_shared.h"
 
-#include "godot_eq.h"
+#include "equalizer.h"
 #include "output.h"
 #include "song.h"
 #include "spectrum_analyzer.h"
@@ -63,6 +63,7 @@ struct Command {
 		PREVIOUS,
 		VOLUME,
 		EQ,
+		EQ_OUTPUT,
 		BLEND,
 		REPEAT_ONE,
 		LOOP_QUEUE,
@@ -225,7 +226,9 @@ private:
 	float applied_volume = 1.0f;
 	bool eq_enabled = false;
 	float eq_gains_db[EQ_BANDS] = {};
-	std::unique_ptr<GodotEQ10> eq;
+	bool eq_auto_preamp = true;
+	float eq_output_gain_db = 0.0f;
+	std::unique_ptr<Equalizer10> eq;
 	double blend_sec = 0.0;
 	bool repeat_one = false;
 	bool loop_queue = false;
@@ -641,14 +644,22 @@ void SongoEngine::apply(Command &command) {
 			}
 			if (eq_enabled) {
 				if (!eq) {
-					eq = std::make_unique<GodotEQ10>(sample_rate);
+					eq = std::make_unique<Equalizer10>(sample_rate);
 				}
-				for (int band = 0; band < EQ_BANDS; band++) {
-					eq->set_band_gain_db(band, eq_gains_db[band]);
-				}
+				eq->set_band_gains_db(eq_gains_db, EQ_BANDS);
+				eq->set_output(eq_auto_preamp, eq_output_gain_db);
 			} else {
-				// Skipped entirely when off, like Songo bypassing the effect
+				// Skipped entirely when off, which sounds the same as every band at 0 dB
 				eq.reset();
+			}
+			publish_status();
+			break;
+
+		case Command::EQ_OUTPUT:
+			eq_auto_preamp = command.flag;
+			eq_output_gain_db = (float)command.value;
+			if (eq) {
+				eq->set_output(eq_auto_preamp, eq_output_gain_db);
 			}
 			publish_status();
 			break;
@@ -1108,8 +1119,9 @@ void SongoEngine::publish_status() {
 	for (int band = 0; band < EQ_BANDS; band++) {
 		status.eq_gains_db[band] = eq_gains_db[band];
 	}
+	status.eq_output_gain_db = eq_output_gain_db;
 	status.flags = (repeat_one ? STATUS_REPEAT_ONE : 0) | (loop_queue ? STATUS_LOOP_QUEUE : 0) |
-			(eq_enabled ? STATUS_EQ_ENABLED : 0);
+			(eq_enabled ? STATUS_EQ_ENABLED : 0) | (eq_auto_preamp ? STATUS_EQ_AUTO_PREAMP : 0);
 	status.duration = -1.0;
 	status.position_time_ns = now;
 	if (current) {
@@ -1300,6 +1312,13 @@ void songo_engine_set_eq(SongoEngine *engine, int enabled, const float *gains_db
 	for (int i = 0; gains_db && i < count && i < EQ_BANDS; i++) {
 		command.gains.push_back(gains_db[i]);
 	}
+	send(engine, std::move(command));
+}
+
+void songo_engine_set_eq_output(SongoEngine *engine, int auto_preamp, float output_gain_db) {
+	Command command = make(Command::EQ_OUTPUT);
+	command.flag = auto_preamp != 0;
+	command.value = output_gain_db;
 	send(engine, std::move(command));
 }
 

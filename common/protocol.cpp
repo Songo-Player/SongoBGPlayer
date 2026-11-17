@@ -155,6 +155,8 @@ bool dispatch_command(SongoEngine *engine, const Message &m) {
 			gains.push_back((float)m.arg_double(i));
 		}
 		songo_engine_set_eq(engine, m.arg_int(0), gains.data(), (int)gains.size());
+	} else if (name == "eq_output") {
+		songo_engine_set_eq_output(engine, m.arg_int(0), (float)m.arg_double(1));
 	} else if (name == "blend") {
 		songo_engine_set_blend(engine, m.arg_double(0));
 	} else if (name == "repeat_one") {

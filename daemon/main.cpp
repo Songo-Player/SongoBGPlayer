@@ -16,6 +16,7 @@
 //   #SONGO-REPEAT-ONE:1       repeat the current song instead of moving on
 //   #SONGO-VOLUME:0.8         linear gain, Songo's music volume
 //   #SONGO-EQ:0,-3,2,...      Songo's 10 EQ band gains in dB, only when its EQ is on
+//   #SONGO-EQ-OUTPUT:1,-2     EQ auto preamp on/off and output gain in dB (default 1,0)
 //   #SONGO-LOOP:0             stop at the end of the queue rather than looping
 //
 // Options:
@@ -104,6 +105,8 @@ struct Playlist {
 	float volume = 1.0f;
 	bool eq_enabled = false;
 	float eq_gains_db[EQ_BANDS] = {};
+	bool eq_auto_preamp = true;
+	float eq_output_gain_db = 0.0f;
 };
 
 struct Client {
@@ -192,6 +195,12 @@ bool read_playlist(const std::string &path, Playlist &r_playlist) {
 					}
 					cursor = *end == ',' ? end + 1 : end;
 				}
+			} else if (key == "#SONGO-EQ-OUTPUT") {
+				char *end = nullptr;
+				r_playlist.eq_auto_preamp = strtol(value, &end, 10) != 0;
+				if (*end == ',') {
+					r_playlist.eq_output_gain_db = strtof(end + 1, nullptr);
+				}
 			} else if (key == "#SONGO-VOLUME") {
 				r_playlist.volume = std::clamp((float)atof(value), 0.0f, 1.0f);
 			}
@@ -225,6 +234,7 @@ std::vector<Message> playlist_commands(const Playlist &playlist, double blend) {
 		eq.add((double)playlist.eq_gains_db[band]);
 	}
 	out.push_back(eq);
+	out.push_back(Message("eq_output").add(playlist.eq_auto_preamp ? 1 : 0).add((double)playlist.eq_output_gain_db));
 	if (blend >= 0.0) {
 		out.push_back(Message("blend").add(blend));
 	}

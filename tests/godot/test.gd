@@ -118,6 +118,10 @@ func playback():
 	p.eq_band_gains = PackedFloat32Array([0, 0, 0, 0, 0, -12, 0, 0, 0, 0]); p.eq_enabled = true
 	await wait(0.4); report("eq on (analysis is pre-EQ)")
 	check(p.eq_enabled and p.eq_band_gains[5] == -12.0, "EQ settings reached the engine")
+	p.eq_auto_preamp = false; p.eq_output_gain_db = -3.0
+	await wait(0.4); report("eq output: auto preamp off, -3 dB")
+	check(not p.eq_auto_preamp and p.eq_output_gain_db == -3.0, "EQ output settings reached the engine")
+	p.eq_auto_preamp = true; p.eq_output_gain_db = 0.0
 
 	p.previous(); await wait(0.5); report("previous()")
 	check(p.get_current_index() == 1, "previous() early in a song goes back one (wrapping)")

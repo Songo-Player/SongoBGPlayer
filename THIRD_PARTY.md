@@ -42,20 +42,6 @@ See licenses/mbedtls/LICENSE for the license text.
 
 ## Godot Engine
 
-The engine's equalizer (engine/src/godot_eq.h) is ported from
-Godot Engine's AudioEffectEQ10 (servers/audio/effects/eq_filter.cpp and
-audio_effect_eq.cpp), used under the terms of the MIT License.
-
-Godot website:
-https://godotengine.org/
-
-Godot version:
-4.3-stable
-
-Source:
-https://github.com/godotengine/godot
-
-See licenses/godot/LICENSE.txt for the license text.
-The engine's spectrum analyzer (engine/src/spectrum_analyzer.cpp) measures
+No Godot Engine code is included. The engine's spectrum analyzer (engine/src/spectrum_analyzer.cpp) measures
 the way Godot's AudioEffectSpectrumAnalyzer does (window, block size and
 normalization) so visualizers match, but its code is written from scratch.
