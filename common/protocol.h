@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Riley Cleary
+// SPDX-License-Identifier: MIT
+
 // The control protocol between Songo and the engine, used both over the
 // daemon's socket and in-process, so both transports carry the same messages.
 //

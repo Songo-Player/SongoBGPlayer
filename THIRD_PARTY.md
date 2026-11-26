@@ -18,7 +18,9 @@ n8.1.2
 The FFmpeg source corresponding to the distributed binaries is
 available at:
 
-SongoPlayer org repo link, add later
+https://github.com/FFmpeg/FFmpeg/tree/n8.1.2
+(unmodified; pinned as the third_party/ffmpeg submodule of
+https://github.com/Songo-Player/SongoBGPlayer, whose scripts/deps/ build it)
 
 The FFmpeg build used by this project is configured without GPL
 or nonfree components.

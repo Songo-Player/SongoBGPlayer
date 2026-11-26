@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Riley Cleary
+// SPDX-License-Identifier: MIT
+
 #include "protocol.h"
 
 #include <cstdio>

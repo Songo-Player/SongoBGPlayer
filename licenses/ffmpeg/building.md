@@ -10,10 +10,11 @@ PKG_CONFIG_LIBDIR="$MBEDTLS_INSTALL_DIR/lib/pkgconfig" \
     --disable-programs \
     --disable-doc \
     --disable-debug \
+    --enable-small \
     --disable-shared \
     --enable-static \
     --enable-pic \
-    --extra-cflags="-fPIC" \
+    --extra-cflags="-fPIC $FFMPEG_SIZE_CFLAGS" \
     --disable-gpl \
     --disable-nonfree \
     --enable-version3 \
@@ -25,6 +26,14 @@ PKG_CONFIG_LIBDIR="$MBEDTLS_INSTALL_DIR/lib/pkgconfig" \
     --enable-avutil \
     --enable-swresample \
     --disable-encoders \
+    --disable-decoders \
+    --enable-decoder="$FFMPEG_AUDIO_DECODERS" \
+    --disable-parsers \
+    --enable-parser="$FFMPEG_AUDIO_PARSERS" \
+    --disable-demuxer="$FFMPEG_IMAGE_DEMUXERS" \
+    --disable-demuxer="$FFMPEG_NO_AUDIO_DEMUXERS" \
+    --disable-bsfs \
+    --enable-bsf="$FFMPEG_AUDIO_BSFS" \
     --disable-muxers \
     --enable-network \
     --enable-mbedtls \
@@ -36,3 +45,5 @@ PKG_CONFIG_LIBDIR="$MBEDTLS_INSTALL_DIR/lib/pkgconfig" \
     --disable-vdpau \
     --disable-libdrm \
     --disable-xlib
+
+The FFMPEG_* variables are set by scripts/deps/ffmpeg_audio_components.sh.

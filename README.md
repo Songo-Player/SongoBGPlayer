@@ -81,3 +81,8 @@ songo_bgplayer [playlist.m3u] [--blend SECONDS] [--idle] [--socket PATH] [--back
 
 ### Tests
 `tests/run_tests.sh <songodot binary>` builds a scratch project and runs headless checks with the Songodot editor binary (anything with the `songo_player_harness` module) against what's in `bin/`: playback in-process and through the daemon, the spectrum against Godot's analyzer, blending, failures, latency changes, a stalling network stream, and leaving Songo while music plays and coming back. They use the null backend, so they're silent; `tests/run_tests.sh <songodot> alsa` also tries the real ALSA device, at volume 0.
+
+### License
+SongoBGPlayer Copyright (C) 2026 Riley Cleary
+
+SongoBGPlayer is licensed under the GNU General Public License version 3 or later. See [LICENSE.txt](LICENSE.txt). The files Songodot's module has copies of (`engine/include/songo_engine.h`, `engine/include/songo_shared.h`, `common/protocol.h`, `common/protocol.cpp`) are under the MIT license instead, see [licenses/MIT.txt](licenses/MIT.txt). Third-party software remains under its own licenses, see [THIRD_PARTY.md](THIRD_PARTY.md).

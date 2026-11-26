@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Riley Cleary
+// SPDX-License-Identifier: MIT
+
 // libsongo_engine: Songo's music engine, independent of Godot.
 //
 // Decodes with FFmpeg, walks the play queue (looping, repeat-one, blending

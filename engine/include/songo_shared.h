@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Riley Cleary
+// SPDX-License-Identifier: MIT
+
 // The block of memory the engine publishes its live state to: playback
 // status, a spectrum matching Godot's AudioEffectSpectrumAnalyzer, and a
 // waveform ring. In-process hosts get a pointer to it; other processes map the
